@@ -1,67 +1,179 @@
-# Diabetes Prediction using Machine Learning
+# Diabetes Risk Prediction: Comparative Machine Learning and Model Interpretation
 
-## 📌 Overview
+## Overview
 
-This project builds a machine learning model to predict whether a person
-has diabetes based on health-related features. It uses **Support Vector
-Machine (SVM)** for classification and evaluates the model's accuracy.
+This project investigates whether demographic and physiological measurements can predict diabetes status using several supervised machine-learning approaches.
 
-## ⚙️ Technologies Used
+The emphasis is on **reproducible experimental methodology**, including leakage-safe preprocessing, stratified cross-validation, multiple evaluation metrics, model comparison, and feature interpretation.
 
--   **Python 3**
--   **NumPy**
--   **Pandas**
--   **scikit-learn (sklearn)**
+> **This is an educational/research project. It is not a clinically validated diagnostic system.**
 
-## 📂 Dataset
+## Research Questions
 
-The dataset contains medical predictor variables such as glucose level,
-BMI, insulin, age, etc., along with the target variable indicating
-diabetes diagnosis.\
-*(Replace this section with dataset source if available, e.g., Kaggle's
-Pima Indians Diabetes Dataset).*
+1. How well can diabetes status be predicted from the available measurements?
+2. How do interpretable linear models compare with nonlinear models?
+3. Which evaluation metrics provide the most useful view of binary classification performance?
+4. Which variables contribute most to predictive performance?
+5. How should physiologically implausible zero measurements be handled?
 
-## 🧑‍💻 Steps in the Notebook
+## Dataset
 
-1.  **Import Libraries** -- Load Python libraries for data manipulation
-    and ML.
-2.  **Load Dataset** -- Read diabetes dataset into a pandas DataFrame.
-3.  **Data Exploration** -- Inspect dataset shape, missing values, and
-    distributions.
-4.  **Data Preprocessing** -- Standardize numerical features using
-    `StandardScaler`.
-5.  **Train-Test Split** -- Split data into training and testing sets.
-6.  **Model Training** -- Train an SVM classifier on the training data.
-7.  **Model Evaluation** -- Test the model and calculate accuracy using
-    `accuracy_score`.
+The project uses the Pima Indians Diabetes dataset, containing demographic and physiological measurements together with a binary diabetes outcome.
 
-## 🚀 How to Run
+Variables include:
 
-1.  Clone this repository or download the notebook.
+- Pregnancies
+- Glucose
+- BloodPressure
+- SkinThickness
+- Insulin
+- BMI
+- DiabetesPedigreeFunction
+- Age
+- Outcome
 
-2.  Install dependencies:
+`Outcome = 1` indicates diabetes and `Outcome = 0` indicates no diabetes.
 
-    ``` bash
-    pip install numpy pandas scikit-learn
-    ```
+## Methodology
 
-3.  Open the notebook:
+### Data quality
 
-    ``` bash
-    jupyter notebook Diabetes_prediction.ipynb
-    ```
+The variables `Glucose`, `BloodPressure`, `SkinThickness`, `Insulin`, and `BMI` contain zero values that are generally not physiologically meaningful. These zeros are treated as missing values before modeling.
 
-4.  Run all cells to train and evaluate the model.
+Missing values are then imputed **inside the machine-learning pipeline**. This prevents information from the test set from influencing preprocessing.
 
-## 📊 Results
+### Experimental design
 
-The model outputs accuracy scores on the training and testing datasets.\
-*(Add specific accuracy numbers after running the notebook).*
+The data are divided using a **stratified 80/20 train/test split**.
 
-## 📌 Future Improvements
+Model selection is evaluated using **stratified 5-fold cross-validation** on the training data.
 
--   Try different classifiers (Logistic Regression, Random Forest,
-    XGBoost).
--   Perform hyperparameter tuning for SVM.
--   Use cross-validation for more robust evaluation.
--   Add data visualization (feature importance, correlation heatmap).
+The held-out test set is used only for final evaluation.
+
+### Models
+
+Four classifiers are compared:
+
+1. Logistic Regression
+2. Linear SVM
+3. RBF-kernel SVM
+4. Random Forest
+
+### Metrics
+
+The project reports:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- ROC-AUC
+
+Because the target classes are not perfectly balanced, accuracy alone is not treated as sufficient evidence of model quality.
+
+### Interpretation
+
+Permutation importance is used to estimate how much predictive performance changes when individual features are shuffled.
+
+This provides a model-agnostic view of predictive usefulness.
+
+## Results
+
+The executed notebook produces:
+
+```text
+results/
+├── cross_validation_results.csv
+├── test_results.csv
+├── permutation_importance.csv
+└── figures/
+    ├── outcome_distribution.png
+    ├── features_by_outcome.png
+    ├── correlation_heatmap.png
+    ├── confusion_matrix_logistic_regression.png
+    ├── confusion_matrix_linear_svm.png
+    ├── confusion_matrix_rbf_svm.png
+    ├── confusion_matrix_random_forest.png
+    ├── roc_curve_comparison.png
+    └── permutation_importance.png
+```
+
+The actual model metrics are intentionally stored in CSV files generated by the notebook rather than hard-coded into this README, so the repository remains reproducible if the experiment is rerun.
+
+## Interpretation and Limitations
+
+The models estimate predictive associations, not causal effects.
+
+The dataset is relatively small and comes from a specific population, so performance may not generalize to other populations.
+
+The model is also not externally validated and should not be interpreted as a clinical diagnostic system.
+
+A stronger future study would evaluate the models on an independent cohort and examine probability calibration, decision thresholds, subgroup performance, and uncertainty.
+
+## Future Research
+
+Potential extensions include:
+
+- external validation
+- repeated/nested cross-validation
+- probability calibration
+- threshold optimization based on false-negative costs
+- subgroup/fairness analysis
+- confidence intervals through repeated resampling
+- SHAP-based explanations
+- comparison with established clinical risk scores
+
+## Repository Structure
+
+```text
+Diabetes_prediction/
+│
+├── data/
+│   └── diabetes.csv
+│
+├── notebooks/
+│   └── diabetes_risk_modeling.ipynb
+│
+├── results/
+│   ├── cross_validation_results.csv
+│   ├── test_results.csv
+│   ├── permutation_importance.csv
+│   └── figures/
+│
+├── src/
+│   └── train.py
+│
+├── README.md
+├── requirements.txt
+└── .gitignore
+```
+
+## Reproducibility
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then execute:
+
+```bash
+python src/train.py
+```
+
+or run the notebook:
+
+```text
+notebooks/diabetes_risk_modeling.ipynb
+```
+
+All figures and result tables are automatically saved under `results/`.
+
+## Author
+
+**Saurabh Das**
+
+BSc in Mathematics | Python | Machine Learning | Data Analysis
+
+GitHub: https://github.com/showravj2-create
